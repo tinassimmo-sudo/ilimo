@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ILIMO — TINASS IMMO</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1a6fa8;--blue-dark:#0d4a73;--blue-light:#e8f3fb;
+  --gold:#f0a500;--bg:#f0f4f8;--sidebar:#0d3d5e;
+  --text:#1a2332;--muted:#6b7a8d;--border:#dde3ea;
+  --success:#1a9e6e;--danger:#d93025;
+  --radius:8px;--shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;font-size:14px}
+button{cursor:pointer;font-family:inherit;font-size:14px;border:none}
+input,select,textarea{font-family:inherit;font-size:14px}
+
+/* SCREENS */
+.screen{display:none;align-items:center;justify-content:center;height:100vh;background:linear-gradient(135deg,#0d3d5e,#1a6fa8);position:fixed;inset:0;z-index:100}
+.screen.show{display:flex}
+.card{background:white;border-radius:16px;padding:36px;width:400px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}
+.logo{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#1a6fa8,#0d3d5e);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;border:3px solid #f0a500}
+.logo span{color:white;font-size:26px;font-weight:900}
+.app-name{font-size:22px;font-weight:800;color:#0d4a73}
+.app-sub{font-size:10px;color:#6b7a8d;letter-spacing:2px;text-transform:uppercase;margin-bottom:20px}
+.card h2{font-size:16px;font-weight:700;margin-bottom:6px;color:#1a2332}
+.card p{font-size:13px;color:#6b7a8d;margin-bottom:20px;line-height:1.5}
+.field-label{display:block;font-size:11px;font-weight:700;color:#6b7a8d;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;text-align:left}
+.field-input{width:100%;padding:10px 14px;border:1.5px solid #dde3ea;border-radius:8px;margin-bottom:14px;font-size:14px}
+.field-input:focus{outline:none;border-color:#1a6fa8}
+.btn-main{width:100%;padding:12px;background:#1a6fa8;color:white;border-radius:8px;font-weight:700;font-size:15px;margin-bottom:8px}
+.btn-main:hover{background:#0d4a73}
+.btn-sec{width:100%;padding:11px;background:#2878a0;color:white;border-radius:8px;font-weight:600;font-size:14px}
+.btn-sec:hover{background:#1a6fa8}
+.user-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.user-btn{display:flex;align-items:center;gap:14px;padding:14px;border:2px solid #dde3ea;border-radius:8px;background:white;text-align:left;width:100%;transition:all .15s}
+.user-btn:hover{border-color:#1a6fa8;background:#e8f3fb}
+.av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:white;flex-shrink:0}
+.user-btn strong{display:block;font-size:14px;color:#1a2332}
+.user-btn small{font-size:12px;color:#6b7a8d}
+.hint{font-size:11px;color:#aaa;margin-top:10px}
+
+/* APP */
+#app{display:none;height:100vh;flex-direction:row}
+#app.show{display:flex}
+.sidebar{width:220px;background:#0d3d5e;color:white;display:flex;flex-direction:column;flex-shrink:0}
+.sl{padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:10px}
+.sl-logo{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#1a6fa8,#f0a500);display:flex;align-items:center;justify-content:center;border:2px solid #f0a500;flex-shrink:0}
+.sl-logo span{color:white;font-size:11px;font-weight:900}
+.sl-t{font-size:15px;font-weight:800;color:white}
+.sl-s{font-size:8px;color:rgba(255,255,255,.5);letter-spacing:1.5px;text-transform:uppercase}
+.su{padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:10px}
+.su-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0}
+.su-n{font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
+.su-r{font-size:10px;color:rgba(255,255,255,.5)}
+nav{flex:1;padding:10px 0;overflow-y:auto}
+.ns{padding:5px 16px;font-size:9px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1.5px;margin-top:6px}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 16px;color:rgba(255,255,255,.7);cursor:pointer;border-left:3px solid transparent;font-size:13px;transition:all .1s}
+.ni:hover{background:rgba(255,255,255,.08);color:white}
+.ni.on{background:rgba(255,255,255,.12);color:white;border-left-color:#f0a500}
+.nic{font-size:15px;width:18px;text-align:center}
+.sb{padding:10px 16px;border-top:1px solid rgba(255,255,255,.1)}
+.lob{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.5);font-size:12px;cursor:pointer;padding:5px 0;background:none;width:100%;text-align:left}
+.lob:hover{color:white}
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.topbar{padding:14px 22px;background:white;border-bottom:1px solid #dde3ea;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.tb-t{font-size:17px;font-weight:700}.tb-s{font-size:12px;color:#6b7a8d;margin-top:2px}
+.tb-a{display:flex;gap:8px;align-items:center}
+.content{padding:22px;flex:1}
+.btn{padding:8px 15px;border-radius:8px;font-weight:600;transition:all .15s;display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-b{background:#1a6fa8;color:white;border:none}.btn-b:hover{background:#0d4a73}
+.btn-o{background:white;color:#1a2332;border:1.5px solid #dde3ea}.btn-o:hover{border-color:#1a6fa8;color:#1a6fa8}
+.btn-d{background:#d93025;color:white;border:none}
+.btn-g{background:#f0a500;color:white;border:none}.btn-g:hover{background:#d4920a}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.sc{background:white;border-radius:8px;padding:18px;box-shadow:var(--shadow);border-left:4px solid #1a6fa8}
+.sc.gd{border-left-color:#f0a500}.sc.gr{border-left-color:#1a9e6e}.sc.rd{border-left-color:#d93025}
+.sc-n{font-size:26px;font-weight:800}.sc-l{font-size:12px;color:#6b7a8d;margin-top:3px}
+.sc-i{font-size:22px;float:right;opacity:.3}
+.tc{background:white;border-radius:8px;box-shadow:var(--shadow);overflow:hidden}
+.sb2{padding:7px 12px;border:1.5px solid #dde3ea;border-radius:8px;width:200px;font-size:13px}
+.sb2:focus{outline:none;border-color:#1a6fa8}
+table{width:100%;border-collapse:collapse}
+thead{background:#f0f4f8}
+th{padding:9px 14px;text-align:left;font-size:11px;font-weight:700;color:#6b7a8d;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #dde3ea}
+td{padding:10px 14px;border-bottom:1px solid #dde3ea;font-size:13px}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#e8f3fb}
+.bdg{display:inline-block;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:600}
+.bg{background:#e6f7f1;color:#0d6e4a}.bb{background:#e8f3fb;color:#1a6fa8}
+.bo{background:#fff3e0;color:#e65c00}.br{background:#fdecea;color:#c0392b}
+.by{background:#fff8e6;color:#b57c00}.bz{background:#f0f0f0;color:#6b7a8d}
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center}
+.mo.show{display:flex}
+.md{background:white;border-radius:12px;width:640px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.md-lg{width:820px}
+.md-h{padding:18px 24px;border-bottom:1px solid #dde3ea;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.md-h h2{font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
+.md-cl{background:none;border:none;font-size:20px;color:#6b7a8d;cursor:pointer;padding:4px}
+.md-cl:hover{color:#1a2332}
+.md-b{overflow-y:auto;padding:22px 24px;flex:1}
+.md-f{padding:14px 24px;border-top:1px solid #dde3ea;display:flex;gap:8px;justify-content:flex-end;background:white;flex-shrink:0}
+.tabs{display:flex;border-bottom:2px solid #dde3ea;margin-bottom:20px;flex-wrap:wrap}
+.tab{padding:9px 14px;font-size:12px;font-weight:600;color:#6b7a8d;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap}
+.tab:hover{color:#1a6fa8}.tab.on{color:#1a6fa8;border-bottom-color:#1a6fa8}
+.tp{display:none}.tp.on{display:block}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.full{grid-column:1/-1}
+.fl label{display:block;font-size:11px;font-weight:700;color:#6b7a8d;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.fl input,.fl select,.fl textarea{width:100%;padding:8px 11px;border:1.5px solid #dde3ea;border-radius:8px;transition:border-color .15s;background:white;color:#1a2332;font-size:13px}
+.fl input:focus,.fl select:focus,.fl textarea:focus{outline:none;border-color:#1a6fa8}
+.fl textarea{min-height:70px;resize:vertical}
+.sec{font-size:11px;font-weight:700;color:#0d4a73;text-transform:uppercase;letter-spacing:.8px;margin:16px 0 10px;padding-bottom:5px;border-bottom:1.5px solid #e8f3fb}
+.sec:first-child{margin-top:0}
+.cg{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.ci{display:flex;align-items:center;gap:6px;padding:7px 9px;background:#f0f4f8;border-radius:6px;cursor:pointer;font-size:12px;border:1.5px solid transparent;transition:all .1s}
+.ci:hover{background:#e8f3fb;border-color:#1a6fa8}
+.ci.on{background:#e8f3fb;border-color:#1a6fa8;font-weight:600;color:#1a6fa8}
+.ci input{width:14px;height:14px;cursor:pointer;accent-color:#1a6fa8;flex-shrink:0}
+.puz{border:2px dashed #dde3ea;border-radius:8px;padding:16px;text-align:center;cursor:pointer;transition:all .15s;background:#f0f4f8}
+.puz:hover{border-color:#1a6fa8;background:#e8f3fb}
+.pg{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:10px}
+.pt{position:relative;aspect-ratio:1;border-radius:5px;overflow:hidden;background:#f0f4f8}
+.pt img{width:100%;height:100%;object-fit:cover;cursor:pointer}
+.pt .dp{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.6);color:white;border:none;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0}
+.pt:hover .dp{opacity:1}
+.pt .mp{position:absolute;bottom:2px;left:2px;background:#f0a500;color:white;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px}
+.up{font-size:11px;color:#6b7a8d;margin-top:6px;text-align:center}
+.al{display:flex;flex-direction:column;gap:10px}
+.ai{background:white;border-radius:8px;padding:14px;box-shadow:var(--shadow);display:flex;gap:12px}
+.aic{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.aim{font-size:12px;color:#6b7a8d;display:flex;gap:8px;flex-wrap:wrap;margin-top:3px}
+.dg{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.dc{background:white;border-radius:8px;padding:16px;box-shadow:var(--shadow);cursor:pointer;transition:all .15s;border:2px solid transparent;text-align:center}
+.dc:hover{border-color:#1a6fa8;transform:translateY(-2px)}
+.dc-i{font-size:30px;margin-bottom:7px}
+.dc-t{font-size:12px;font-weight:700;margin-bottom:2px}
+.dc-s{font-size:10px;color:#6b7a8d}
+.do{background:#f8f9fa;border:1.5px solid #dde3ea;border-radius:8px;padding:16px;min-height:150px;white-space:pre-wrap;font-size:13px;line-height:1.7}
+.ld{display:flex;align-items:center;gap:7px;color:#6b7a8d;font-size:13px;padding:16px}
+.da span{animation:dt 1.4s infinite;display:inline-block}
+.da span:nth-child(2){animation-delay:.2s}.da span:nth-child(3){animation-delay:.4s}
+@keyframes dt{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+.dg2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.dc2{background:white;border-radius:8px;box-shadow:var(--shadow);overflow:hidden}
+.dc2h{padding:12px 16px;border-bottom:1px solid #dde3ea;font-weight:700;font-size:13px;display:flex;justify-content:space-between;align-items:center}
+.di{display:flex;align-items:center;gap:10px;padding:9px 16px;border-bottom:1px solid #dde3ea}
+.di:last-child{border-bottom:none}
+.di-i{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;background:#e8f3fb;flex-shrink:0}
+.di-f{flex:1}.di-t{font-size:13px;font-weight:600}.di-s{font-size:11px;color:#6b7a8d}
+.fb{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap}
+.fbtn{padding:5px 12px;border-radius:100px;border:1.5px solid #dde3ea;background:white;font-size:12px;font-weight:600;color:#6b7a8d;cursor:pointer}
+.fbtn.on{background:#1a6fa8;color:white;border-color:#1a6fa8}
+.fbtn:hover:not(.on){border-color:#1a6fa8;color:#1a6fa8}
+.es{text-align:center;padding:40px 20px;color:#6b7a8d}
+.ei{font-size:40px;opacity:.3;margin-bottom:8px}
+.es h3{font-size:14px;font-weight:700;color:#1a2332;margin-bottom:4px}
+.tl{color:#1a6fa8;text-decoration:underline;cursor:pointer;font-size:12px;background:none;border:none}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1a2332;color:white;padding:12px 24px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.toast.ok{background:#1a9e6e}.toast.er{background:#d93025}
+.page{display:none}.page.on{display:block}
+.bp{width:50px;height:40px;border-radius:5px;object-fit:cover;cursor:pointer}
+.bn{width:50px;height:40px;border-radius:5px;background:#f0f4f8;display:flex;align-items:center;justify-content:center;font-size:16px}
+/* PHOTO VIEWER */
+.pv{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:300;align-items:center;justify-content:center;flex-direction:column;gap:10px}
+.pv.show{display:flex}
+.pv img{max-width:90vw;max-height:80vh;object-fit:contain;border-radius:8px}
+.pv-n{display:flex;gap:14px;align-items:center}
+.pv-b{background:rgba(255,255,255,.15);border:none;color:white;padding:9px 18px;border-radius:8px;font-size:15px;cursor:pointer}
+.pv-b:hover{background:rgba(255,255,255,.3)}
+.pv-cl{position:absolute;top:18px;right:20px;background:none;border:none;color:white;font-size:26px;cursor:pointer;opacity:.7}
+.pv-cl:hover{opacity:1}
+.pv-c{color:rgba(255,255,255,.7);font-size:13px}
+</style>
+</head>
+<body>
+
+<!-- SETUP -->
+<div class="screen show" id="sc-setup">
+  <div class="card">
+    <div class="logo"><span>TI</span></div>
+    <div class="app-name">ILIMO</div>
+    <div class="app-sub">TINASS IMMO · CRM</div>
+    <h2>Bienvenue sur ILIMO</h2>
+    <p>Clé API optionnelle — accédez au CRM maintenant et ajoutez la clé IA plus tard dans les paramètres.</p>
+    <label class="field-label">Clé API Anthropic (optionnelle)</label>
+    <input class="field-input" type="password" id="api-key-input" placeholder="sk-ant-api03-...">
+    <button class="btn-main" id="btn-go" onclick="goApp()">Accéder à ILIMO →</button>
+    <button class="btn-sec" onclick="goApp()">Continuer sans clé IA</button>
+    <p class="hint">Clé sur <a href="https://console.anthropic.com" target="_blank" style="color:#1a6fa8">console.anthropic.com</a></p>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div class="screen" id="sc-login">
+  <div class="card">
+    <div class="logo"><span>TI</span></div>
+    <div class="app-name">ILIMO</div>
+    <div class="app-sub">L'IMMOBILIER AUTREMENT</div>
+    <h2>Qui êtes-vous ?</h2>
+    <p>Sélectionnez votre profil pour accéder au CRM</p>
+    <div class="user-list">
+      <button class="user-btn" onclick="login('directrice')"><div class="av" style="background:#c0392b">D</div><div><strong>Directrice</strong><small>Accès complet · Direction</small></div></button>
+      <button class="user-btn" onclick="login('commercial')"><div class="av" style="background:#1a6fa8">C</div><div><strong>Commercial</strong><small>Biens · Contacts · Visites</small></div></button>
+      <button class="user-btn" onclick="login('assistante')"><div class="av" style="background:#1a9e6e">A</div><div><strong>Assistante</strong><small>Documents · Administration</small></div></button>
+    </div>
+    <button class="tl" onclick="changeKey()">Changer la clé API</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="sidebar">
+    <div class="sl">
+      <div class="sl-logo"><span>TI</span></div>
+      <div><div class="sl-t">ILIMO</div><div class="sl-s">TINASS IMMO</div></div>
+    </div>
+    <div class="su">
+      <div class="su-av" id="s-av" style="background:#1a6fa8">U</div>
+      <div><div class="su-n" id="s-nm">Utilisateur</div><div class="su-r" id="s-rl">Profil</div></div>
+    </div>
+    <nav>
+      <div class="ns">Principal</div>
+      <div class="ni on" onclick="pg('dashboard')"><span class="nic">🏠</span> Tableau de bord</div>
+      <div class="ni" onclick="pg('biens')"><span class="nic">🏢</span> Biens</div>
+      <div class="ni" onclick="pg('contacts')"><span class="nic">👥</span> Contacts</div>
+      <div class="ns">Suivi</div>
+      <div class="ni" onclick="pg('activite')"><span class="nic">📋</span> Activité</div>
+      <div class="ns">IA</div>
+      <div class="ni" onclick="pg('documents')"><span class="nic">📄</span> Documents IA</div>
+      <div class="ni" onclick="pg('assistant')"><span class="nic">🤖</span> Assistante</div>
+      <div class="ns">Compte</div>
+      <div class="ni" onclick="pg('parametres')"><span class="nic">⚙️</span> Paramètres</div>
+    </nav>
+    <div class="sb"><button class="lob" onclick="logout()">🚪 Changer d'utilisateur</button></div>
+  </div>
+
+  <div class="main">
+    <!-- DASHBOARD -->
+    <div class="page on" id="pg-dashboard">
+      <div class="topbar"><div><div class="tb-t">Tableau de bord</div><div class="tb-s" id="dash-date"></div></div><div class="tb-a"><button class="btn btn-b" onclick="pg('biens');setTimeout(openBienModal,100)">+ Nouveau bien</button></div></div>
+      <div class="content">
+        <div class="stats">
+          <div class="sc"><span class="sc-i">🏢</span><div class="sc-n" id="st-b">0</div><div class="sc-l">Biens</div></div>
+          <div class="sc gd"><span class="sc-i">👥</span><div class="sc-n" id="st-c">0</div><div class="sc-l">Contacts</div></div>
+          <div class="sc gr"><span class="sc-i">📋</span><div class="sc-n" id="st-a">0</div><div class="sc-l">Activités ce mois</div></div>
+          <div class="sc rd"><span class="sc-i">💰</span><div class="sc-n" id="st-o">0</div><div class="sc-l">Offres en cours</div></div>
+        </div>
+        <div class="dg2">
+          <div class="dc2"><div class="dc2h">Derniers biens <button class="tl" onclick="pg('biens')">Voir tout</button></div><div id="db-b"></div></div>
+          <div class="dc2"><div class="dc2h">Dernières activités <button class="tl" onclick="pg('activite')">Voir tout</button></div><div id="db-a"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BIENS -->
+    <div class="page" id="pg-biens">
+      <div class="topbar"><div><div class="tb-t">Biens immobiliers</div><div class="tb-s">Portefeuille</div></div>
+        <div class="tb-a">
+          <input class="sb2" placeholder="🔍 Rechercher..." id="srch-b" oninput="renderB()">
+          <button class="btn btn-o" onclick="openImport()">📥 Mubawab</button>
+          <button class="btn btn-b" onclick="openBienModal()">+ Nouveau bien</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="fb">
+          <button class="fbtn on" onclick="fB('tous',this)">Tous</button>
+          <button class="fbtn" onclick="fB('vente',this)">Vente</button>
+          <button class="fbtn" onclick="fB('location',this)">Location</button>
+          <button class="fbtn" onclick="fB('disponible',this)">Disponibles</button>
+          <button class="fbtn" onclick="fB('negociation',this)">En négociation</button>
+        </div>
+        <div class="tc"><div style="overflow-x:auto"><table>
+          <thead><tr><th>Photo</th><th>Réf.</th><th>Type</th><th>Titre / Localisation</th><th>Activité</th><th>Prix</th><th>Statut</th><th>Standing</th><th>Propriétaire</th><th>Actions</th></tr></thead>
+          <tbody id="tb-b"></tbody>
+        </table></div></div>
+      </div>
+    </div>
+
+    <!-- CONTACTS -->
+    <div class="page" id="pg-contacts">
+      <div class="topbar"><div><div class="tb-t">Contacts</div><div class="tb-s">Propriétaires · Acquéreurs · Locataires</div></div>
+        <div class="tb-a"><input class="sb2" placeholder="🔍 Rechercher..." id="srch-c" oninput="renderC()"><button class="btn btn-b" onclick="openContactModal()">+ Nouveau contact</button></div>
+      </div>
+      <div class="content">
+        <div class="fb">
+          <button class="fbtn on" onclick="fC('tous',this)">Tous</button>
+          <button class="fbtn" onclick="fC('proprietaire',this)">Propriétaires</button>
+          <button class="fbtn" onclick="fC('acquereur',this)">Acquéreurs</button>
+          <button class="fbtn" onclick="fC('locataire',this)">Locataires</button>
+        </div>
+        <div class="tc"><div style="overflow-x:auto"><table>
+          <thead><tr><th>Nom</th><th>Type</th><th>Téléphone</th><th>Email</th><th>Nationalité</th><th>Budget</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody id="tb-c"></tbody>
+        </table></div></div>
+      </div>
+    </div>
+
+    <!-- ACTIVITE -->
+    <div class="page" id="pg-activite">
+      <div class="topbar"><div><div class="tb-t">Activité</div><div class="tb-s">Demandes · Visites · Relances · Offres</div></div>
+        <div class="tb-a"><button class="btn btn-b" onclick="openActiviteModal()">+ Nouvelle activité</button></div>
+      </div>
+      <div class="content">
+        <div class="fb">
+          <button class="fbtn on" onclick="fA('tous',this)">Toutes</button>
+          <button class="fbtn" onclick="fA('demande',this)">Demandes</button>
+          <button class="fbtn" onclick="fA('visite',this)">Visites</button>
+          <button class="fbtn" onclick="fA('relance',this)">Relances</button>
+          <button class="fbtn" onclick="fA('offre',this)">Offres</button>
+        </div>
+        <div class="al" id="al"></div>
+      </div>
+    </div>
+
+    <!-- DOCUMENTS IA -->
+    <div class="page" id="pg-documents">
+      <div class="topbar"><div><div class="tb-t">Documents IA</div><div class="tb-s">Génération automatique</div></div></div>
+      <div class="content">
+        <div class="dg">
+          <div class="dc" onclick="openDoc('mandat_vente_exclu')"><div class="dc-i">📜</div><div class="dc-t">Mandat vente exclusif</div><div class="dc-s">Exclusif propriétaire</div></div>
+          <div class="dc" onclick="openDoc('mandat_vente_simple')"><div class="dc-i">📋</div><div class="dc-t">Mandat vente simple</div><div class="dc-s">Non exclusif</div></div>
+          <div class="dc" onclick="openDoc('mandat_location')"><div class="dc-i">🔑</div><div class="dc-t">Mandat de location</div><div class="dc-s">Location longue durée</div></div>
+          <div class="dc" onclick="openDoc('fiche_visite')"><div class="dc-i">🏠</div><div class="dc-t">Fiche de visite</div><div class="dc-s">Compte-rendu visite</div></div>
+          <div class="dc" onclick="openDoc('recu_commission')"><div class="dc-i">🧾</div><div class="dc-t">Reçu commission</div><div class="dc-s">Honoraires agence</div></div>
+          <div class="dc" onclick="openDoc('recu_reservation')"><div class="dc-i">💰</div><div class="dc-t">Reçu réservation</div><div class="dc-s">Acompte bien</div></div>
+          <div class="dc" onclick="openDoc('annonce')"><div class="dc-i">📢</div><div class="dc-t">Annonce commerciale</div><div class="dc-s">Portails & réseaux</div></div>
+          <div class="dc" onclick="openDoc('contrat_location')"><div class="dc-i">📄</div><div class="dc-t">Contrat de location</div><div class="dc-s">Bail longue durée</div></div>
+          <div class="dc" onclick="openDoc('reponse_client')"><div class="dc-i">💬</div><div class="dc-t">Réponse client</div><div class="dc-s">Email / WhatsApp</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ASSISTANTE -->
+    <div class="page" id="pg-assistant">
+      <div class="topbar"><div><div class="tb-t">Assistante IA</div><div class="tb-s">Chat avec Claude</div></div><div class="tb-a"><button class="btn btn-o btn-sm" onclick="clrChat()">🗑 Effacer</button></div></div>
+      <div class="content" style="display:flex;flex-direction:column;height:calc(100vh - 80px);padding-bottom:0">
+        <div id="chat-msgs" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding-bottom:14px"></div>
+        <div style="background:white;border-radius:8px;box-shadow:var(--shadow);padding:12px;margin-top:8px;flex-shrink:0">
+          <div style="display:flex;gap:8px;align-items:flex-end">
+            <textarea id="chat-in" placeholder="Posez une question..." style="flex:1;min-height:42px;max-height:120px;resize:none;border:1.5px solid #dde3ea;border-radius:8px;padding:9px 11px;font-family:inherit;font-size:13px" onkeydown="ckd(event)"></textarea>
+            <button class="btn btn-b" onclick="sendChat()">Envoyer ↑</button>
+          </div>
+          <div style="font-size:11px;color:#6b7a8d;margin-top:5px">Entrée pour envoyer · Shift+Entrée pour saut de ligne</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PARAMETRES -->
+    <div class="page" id="pg-parametres">
+      <div class="topbar"><div><div class="tb-t">Paramètres</div><div class="tb-s">Configuration ILIMO</div></div></div>
+      <div class="content"><div style="max-width:480px">
+        <div style="background:white;border-radius:8px;box-shadow:var(--shadow);padding:22px;margin-bottom:14px">
+          <h3 style="font-size:14px;font-weight:700;margin-bottom:5px">🤖 Clé API Anthropic</h3>
+          <p style="font-size:12px;color:#6b7a8d;margin-bottom:12px">Nécessaire pour l'assistante IA et les documents.</p>
+          <div id="key-st" style="font-size:13px;margin-bottom:12px"></div>
+          <div class="fl" style="margin-bottom:10px"><label>Clé API</label><input type="password" id="set-key" placeholder="sk-ant-api03-..."></div>
+          <button class="btn btn-b" onclick="saveKey()" style="width:100%">💾 Enregistrer</button>
+        </div>
+        <div style="background:white;border-radius:8px;box-shadow:var(--shadow);padding:22px">
+          <h3 style="font-size:14px;font-weight:700;margin-bottom:10px">ℹ️ Informations</h3>
+          <div style="font-size:12px;color:#6b7a8d;line-height:2">
+            <div>🏢 CRM : ILIMO — TINASS IMMO</div>
+            <div>☁️ Base : Firebase (ilimo-tinass)</div>
+            <div>📸 Photos : Cloudinary (duuxee6sc)</div>
+            <div>🤖 IA : Claude Sonnet (Anthropic)</div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL BIEN -->
+<div class="mo" id="mo-bien">
+  <div class="md md-lg">
+    <div class="md-h"><h2>🏢 <span id="mo-bien-t">Nouveau bien</span></h2><button class="md-cl" onclick="closeMo('mo-bien')">✕</button></div>
+    <div class="md-b">
+      <input type="hidden" id="b-id">
+      <div class="tabs">
+        <div class="tab on" onclick="swTab('t-gen',this)">📋 Général</div>
+        <div class="tab" onclick="swTab('t-loc',this)">📍 Localisation</div>
+        <div class="tab" onclick="swTab('t-car',this)">📐 Caractéristiques</div>
+        <div class="tab" onclick="swTab('t-pre',this)">✅ Prestations</div>
+        <div class="tab" onclick="swTab('t-jur',this)">⚖️ Juridique</div>
+        <div class="tab" onclick="swTab('t-pho',this)">📸 Photos</div>
+      </div>
+      <div class="tp on" id="t-gen">
+        <div class="fg">
+          <div class="fl"><label>Type *</label><select id="b-type"><option>Riad</option><option>Appartement</option><option>Villa</option><option>Terrain</option><option>Local commercial</option><option>Fonds de commerce</option><option>Autre</option></select></div>
+          <div class="fl"><label>Activité *</label><select id="b-act"><option value="vente">Vente</option><option value="location">Location</option><option value="les deux">Les deux</option></select></div>
+          <div class="fl full"><label>Titre *</label><input id="b-titre" placeholder="Ex: Riad 5 chambres Médina Marrakech"></div>
+          <div class="fl"><label>Prix (MAD)</label><input id="b-prix" type="number"></div>
+          <div class="fl"><label>Commission</label><input id="b-comm" placeholder="Ex: 2.5% ou 1 mois loyer"></div>
+          <div class="fl"><label>Statut</label><select id="b-stat"><option value="disponible">Disponible</option><option value="negociation">En négociation</option><option value="vendu">Vendu</option><option value="loue">Loué</option><option value="retire">Retiré</option></select></div>
+          <div class="fl"><label>Standing</label><select id="b-stand"><option value="">--</option><option>Moyen</option><option>Haut standing</option><option>Luxe</option></select></div>
+          <div class="fl"><label>État</label><select id="b-etat"><option value="">--</option><option>Neuf</option><option>En bon état</option><option>À rafraîchir</option><option>À rénover</option></select></div>
+          <div class="fl"><label>Meublé</label><select id="b-meub"><option value="">--</option><option>Meublé</option><option>Vide</option></select></div>
+          <div class="fl"><label>Propriétaire</label><input id="b-prop"></div>
+          <div class="fl full"><label>Description</label><textarea id="b-desc"></textarea></div>
+          <div class="fl full"><label>Notes internes</label><textarea id="b-notes"></textarea></div>
+          <div class="fl full"><label>🔒 Remarques confidentielles</label><textarea id="b-rem"></textarea></div>
+        </div>
+      </div>
+      <div class="tp" id="t-loc">
+        <div class="fg">
+          <div class="fl"><label>Ville</label><select id="b-ville" onchange="updQ()"><option value="">--</option><option>Marrakech</option><option>Casablanca</option><option>Rabat</option><option>Fès</option><option>Tanger</option><option>Agadir</option><option>Meknès</option><option>Tétouan</option><option>Essaouira</option><option>Ouarzazate</option><option>Ifrane</option><option>Chefchaouen</option><option>Asilah</option><option>Taroudant</option><option>Dakhla</option><option>Laâyoune</option><option>Autre</option></select></div>
+          <div class="fl"><label>Quartier</label><select id="b-qrt"><option value="">--</option></select></div>
+          <div class="fl full"><label>Adresse</label><input id="b-adr"></div>
+          <div class="fl"><label>Latitude GPS</label><input id="b-lat" type="number" step="any" placeholder="31.6295"></div>
+          <div class="fl"><label>Longitude GPS</label><input id="b-lng" type="number" step="any" placeholder="-7.9811"></div>
+          <div class="fl full"><button type="button" class="btn btn-o btn-sm" onclick="getGPS()">📍 Ma position</button> <span id="gps-st" style="font-size:11px;color:#6b7a8d;margin-left:8px"></span></div>
+        </div>
+      </div>
+      <div class="tp" id="t-car">
+        <div class="sec">Surfaces</div>
+        <div class="fg3">
+          <div class="fl"><label>Surface terrain (m²)</label><input id="b-ster" type="number"></div>
+          <div class="fl"><label>Surface construite (m²)</label><input id="b-scon" type="number"></div>
+          <div class="fl"><label>Année construction</label><input id="b-ann" type="number" min="1900" max="2030"></div>
+        </div>
+        <div class="sec">Composition</div>
+        <div class="fg3">
+          <div class="fl"><label>Nb pièces</label><input id="b-npi" type="number" min="0"></div>
+          <div class="fl"><label>Nb chambres</label><input id="b-nch" type="number" min="0"></div>
+          <div class="fl"><label>Nb salles de bains</label><input id="b-nsb" type="number" min="0"></div>
+        </div>
+        <div class="sec">Détails</div>
+        <div class="fg">
+          <div class="fl"><label>Type de sol</label><select id="b-sol"><option value="">--</option><option>Parquet</option><option>Marbre</option><option>Carrelage</option><option>Autre</option></select></div>
+          <div class="fl"><label>Étage</label><select id="b-etg"><option value="">--</option><option value="0">Rez-de-chaussée</option><option value="1">1er</option><option value="2">2ème</option><option value="3">3ème</option><option value="4">4ème</option><option value="5">5ème et +</option></select></div>
+          <div class="fl"><label>Orientation</label><select id="b-ori"><option value="">--</option><option>Nord</option><option>Sud</option><option>Est</option><option>Ouest</option><option>Nord-Est</option><option>Nord-Ouest</option><option>Sud-Est</option><option>Sud-Ouest</option></select></div>
+          <div class="fl"><label>Restaurant</label><select id="b-rest"><option value="">--</option><option value="oui">Oui</option><option value="non">Non</option></select></div>
+        </div>
+      </div>
+      <div class="tp" id="t-pre">
+        <div class="sec">Espaces & vues</div>
+        <div class="cg">
+          <label class="ci" id="ci-jar"><input type="checkbox" id="b-jar" onchange="tgC('ci-jar')"> 🌳 Jardin</label>
+          <label class="ci" id="ci-ter"><input type="checkbox" id="b-ter" onchange="tgC('ci-ter')"> 🪴 Terrasse</label>
+          <label class="ci" id="ci-mer"><input type="checkbox" id="b-mer" onchange="tgC('ci-mer')"> 🌊 Vue mer</label>
+          <label class="ci" id="ci-mnt"><input type="checkbox" id="b-mnt" onchange="tgC('ci-mnt')"> ⛰️ Vue montagne</label>
+        </div>
+        <div class="sec">Équipements</div>
+        <div class="cg">
+          <label class="ci" id="ci-pis"><input type="checkbox" id="b-pis" onchange="tgC('ci-pis')"> 🏊 Piscine</label>
+          <label class="ci" id="ci-ham"><input type="checkbox" id="b-ham" onchange="tgC('ci-ham')"> 🛁 Hammam/Spa</label>
+          <label class="ci" id="ci-ssp"><input type="checkbox" id="b-ssp" onchange="tgC('ci-ssp')"> 💪 Salle sport</label>
+          <label class="ci" id="ci-ten"><input type="checkbox" id="b-ten" onchange="tgC('ci-ten')"> 🎾 Tennis</label>
+          <label class="ci" id="ci-gar"><input type="checkbox" id="b-gar" onchange="tgC('ci-gar')"> 🚗 Garage</label>
+          <label class="ci" id="ci-asc"><input type="checkbox" id="b-asc" onchange="tgC('ci-asc')"> 🛗 Ascenseur</label>
+          <label class="ci" id="ci-con"><input type="checkbox" id="b-con" onchange="tgC('ci-con')"> 👨‍💼 Concierge</label>
+          <label class="ci" id="ci-rng"><input type="checkbox" id="b-rng" onchange="tgC('ci-rng')"> 📦 Ch. rangement</label>
+          <label class="ci" id="ci-che"><input type="checkbox" id="b-che" onchange="tgC('ci-che')"> 🔥 Cheminée</label>
+          <label class="ci" id="ci-cli"><input type="checkbox" id="b-cli" onchange="tgC('ci-cli')"> ❄️ Climatisation</label>
+          <label class="ci" id="ci-cui"><input type="checkbox" id="b-cui" onchange="tgC('ci-cui')"> 🍳 Cuisine équipée</label>
+          <label class="ci" id="ci-pmr"><input type="checkbox" id="b-pmr" onchange="tgC('ci-pmr')"> ♿ Accès PMR</label>
+        </div>
+        <div class="sec">Sécurité</div>
+        <div class="cg">
+          <label class="ci" id="ci-sec"><input type="checkbox" id="b-sec" onchange="tgC('ci-sec')"> 🔒 Sécurité</label>
+          <label class="ci" id="ci-dvt"><input type="checkbox" id="b-dvt" onchange="tgC('ci-dvt')"> 🪟 Double vitrage</label>
+          <label class="ci" id="ci-pbl"><input type="checkbox" id="b-pbl" onchange="tgC('ci-pbl')"> 🚪 Porte blindée</label>
+        </div>
+      </div>
+      <div class="tp" id="t-jur">
+        <div class="fg">
+          <div class="fl"><label>Nature de propriété</label><select id="b-nat"><option value="">--</option><option>Melkia</option><option>Réquisition (Réq.)</option><option>Titré</option></select></div>
+          <div class="fl"><label>AVNA</label><select id="b-avna"><option value="">--</option><option value="oui">Oui</option><option value="non">Non</option></select></div>
+          <div class="fl"><label>Autorisation exploitation</label><select id="b-aex"><option value="">--</option><option value="oui">Oui</option><option value="non">Non</option></select></div>
+          <div class="fl"><label>Licence alcool</label><select id="b-alc"><option value="">--</option><option value="oui">Oui</option><option value="non">Non</option></select></div>
+        </div>
+      </div>
+      <div class="tp" id="t-pho">
+        <div class="puz" id="drop-z" onclick="document.getElementById('ph-in').click()" ondragover="dvr(event)" ondrop="ddr(event)" ondragleave="dlv()">
+          <div style="font-size:28px;margin-bottom:5px">📸</div>
+          <div style="font-weight:600;font-size:13px;color:#1a6fa8">Cliquer pour ajouter des photos</div>
+          <div style="font-size:11px;color:#6b7a8d;margin-top:3px">ou glisser-déposer · Max 10 photos</div>
+        </div>
+        <input type="file" id="ph-in" accept="image/*" multiple style="display:none" onchange="hpf(this.files)">
+        <div class="up" id="up-p"></div>
+        <div class="pg" id="ph-gr"></div>
+      </div>
+    </div>
+    <div class="md-f">
+      <button class="btn btn-o" onclick="closeMo('mo-bien')">Annuler</button>
+      <button class="btn btn-b" onclick="saveBien()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONTACT -->
+<div class="mo" id="mo-contact">
+  <div class="md">
+    <div class="md-h"><h2>👥 <span id="mo-c-t">Nouveau contact</span></h2><button class="md-cl" onclick="closeMo('mo-contact')">✕</button></div>
+    <div class="md-b"><input type="hidden" id="c-id">
+      <div class="fg">
+        <div class="fl"><label>Type *</label><select id="c-type"><option value="proprietaire">Propriétaire</option><option value="acquereur">Acquéreur</option><option value="locataire">Locataire</option></select></div>
+        <div class="fl"><label>Nationalité</label><input id="c-nat"></div>
+        <div class="fl"><label>Nom *</label><input id="c-nom"></div>
+        <div class="fl"><label>Prénom</label><input id="c-pre"></div>
+        <div class="fl"><label>Téléphone</label><input id="c-tel" placeholder="+212 6xx xxx xxx"></div>
+        <div class="fl"><label>Email</label><input id="c-email"></div>
+        <div class="fl full"><label>Adresse</label><input id="c-adr"></div>
+        <div class="fl"><label>Budget (MAD)</label><input id="c-bud" type="number"></div>
+        <div class="fl"><label>Bien recherché</label><input id="c-rch"></div>
+        <div class="fl full"><label>Notes</label><textarea id="c-notes"></textarea></div>
+      </div>
+    </div>
+    <div class="md-f"><button class="btn btn-o" onclick="closeMo('mo-contact')">Annuler</button><button class="btn btn-b" onclick="saveContact()">💾 Enregistrer</button></div>
+  </div>
+</div>
+
+<!-- MODAL ACTIVITE -->
+<div class="mo" id="mo-act">
+  <div class="md">
+    <div class="md-h"><h2>📋 Nouvelle activité</h2><button class="md-cl" onclick="closeMo('mo-act')">✕</button></div>
+    <div class="md-b">
+      <div class="fg">
+        <div class="fl"><label>Type *</label><select id="a-type"><option value="demande">Demande</option><option value="visite">Visite</option><option value="relance">Relance</option><option value="offre">Offre</option></select></div>
+        <div class="fl"><label>Date *</label><input id="a-date" type="date"></div>
+        <div class="fl full"><label>Bien</label><select id="a-bien"><option value="">--</option></select></div>
+        <div class="fl full"><label>Contact</label><select id="a-cont"><option value="">--</option></select></div>
+        <div class="fl"><label>Montant offre (MAD)</label><input id="a-mnt" type="number"></div>
+        <div class="fl"><label>Statut</label><select id="a-stat"><option value="en cours">En cours</option><option value="positif">Positif</option><option value="negatif">Négatif</option><option value="en attente">En attente</option></select></div>
+        <div class="fl full"><label>Notes</label><textarea id="a-notes"></textarea></div>
+      </div>
+    </div>
+    <div class="md-f"><button class="btn btn-o" onclick="closeMo('mo-act')">Annuler</button><button class="btn btn-b" onclick="saveAct()">💾 Enregistrer</button></div>
+  </div>
+</div>
+
+<!-- MODAL DOC -->
+<div class="mo" id="mo-doc">
+  <div class="md" style="width:680px">
+    <div class="md-h"><h2>📄 <span id="doc-t"></span></h2><button class="md-cl" onclick="closeMo('mo-doc')">✕</button></div>
+    <div class="md-b">
+      <div class="fg" style="margin-bottom:12px">
+        <div class="fl"><label>Bien</label><select id="d-bien"></select></div>
+        <div class="fl"><label>Contact</label><select id="d-cont"></select></div>
+        <div class="fl"><label>Langue</label><select id="d-lang"><option value="francais">Français</option><option value="arabe">Arabe</option><option value="anglais">Anglais</option></select></div>
+        <div class="fl full"><label>Informations complémentaires</label><textarea id="d-info" placeholder="Date, montant commission, durée, conditions..."></textarea></div>
+      </div>
+      <button class="btn btn-g" onclick="genDoc()" style="width:100%;margin-bottom:12px">✨ Générer avec l'IA</button>
+      <div id="doc-res"></div>
+    </div>
+    <div class="md-f"><button class="btn btn-o" onclick="closeMo('mo-doc')">Fermer</button><button class="btn btn-b" id="btn-cp" style="display:none" onclick="cpDoc()">📋 Copier</button></div>
+  </div>
+</div>
+
+<!-- MODAL IMPORT -->
+<div class="mo" id="mo-imp">
+  <div class="md md-lg">
+    <div class="md-h"><h2>📥 Importer depuis Mubawab</h2><button class="md-cl" onclick="closeMo('mo-imp')">✕</button></div>
+    <div class="md-b">
+      <div class="tabs">
+        <div class="tab on" onclick="swTab('it-vit',this)">🏢 Vitrine TINASS (21 biens)</div>
+        <div class="tab" onclick="swTab('it-url',this)">🔗 Importer par lien</div>
+      </div>
+      <div class="tp on" id="it-vit">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:7px 10px;background:#f0f4f8;border-radius:8px">
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px;font-weight:600"><input type="checkbox" id="sel-all" onchange="selAll(this)" style="width:15px;height:15px;accent-color:#1a6fa8"> Tout sélectionner</label>
+          <span id="sel-ct" style="font-size:12px;color:#6b7a8d">0 sélectionné(s)</span>
+        </div>
+        <div id="imp-list" style="max-height:400px;overflow-y:auto"></div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+          <button class="btn btn-o" onclick="closeMo('mo-imp')">Annuler</button>
+          <button class="btn btn-b" id="btn-imp" onclick="doImport()">📥 Importer</button>
+        </div>
+      </div>
+      <div class="tp" id="it-url">
+        <p style="font-size:13px;color:#6b7a8d;margin-bottom:14px">Collez le lien d'une annonce Mubawab — l'IA extrait toutes les informations.</p>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <input type="text" id="imp-url" placeholder="https://www.mubawab.ma/fr/a/xxxxxxx/..." style="flex:1;padding:9px 12px;border:1.5px solid #dde3ea;border-radius:8px;font-size:13px">
+          <button class="btn btn-g" onclick="impUrl()">✨ Extraire</button>
+        </div>
+        <div id="url-res"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PHOTO VIEWER -->
+<div class="pv" id="pv">
+  <button class="pv-cl" onclick="clPV()">✕</button>
+  <img id="pv-img" src="" alt="">
+  <div class="pv-n">
+    <button class="pv-b" onclick="pvPrev()">← Précédent</button>
+    <span class="pv-c" id="pv-ct"></span>
+    <button class="pv-b" onclick="pvNext()">Suivant →</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+var KEY='',USER=null,DB=null,biens=[],contacts=[],activites=[],chatHist=[],docType='',pendPh=[],bF='tous',cF='tous',aF='tous',pvPh=[],pvIdx=0;
+
+var CHECKS=['jar','ter','mer','mnt','pis','ham','ssp','ten','gar','asc','con','rng','che','cli','cui','pmr','sec','dvt','pbl'];
+var QLISTS={
+  Marrakech:['Médina','Guéliz','Hivernage','Palmeraie','Targa','Massira','Agdal','M\'Hamid','Semlalia','Amelkis','Route de Fès','Route d\'Ourika','Route Casablanca','Route d\'Amizmiz','Ménara','Kasbah','Autre'],
+  Essaouira:['Médina','Hay Inbiaat','Hay Al Qods','Diabat','Route d\'Agadir','Autre'],
+  Agadir:['Talborjt','Founty','Tikouine','Bensergao','Anza','Inezgane','Marina','Autre']
+};
+var CLOUD_CLOUD='duuxee6sc',CLOUD_PRESET='ilimo_photos';
+var CLOUD_URL='https://api.cloudinary.com/v1_1/'+CLOUD_CLOUD+'/image/upload';
+var FB_CFG={apiKey:"AIzaSyC8zHz1qtIKG6zdoKZxMou13Tn5mhZbyG0",authDomain:"ilimo-tinass.firebaseapp.com",projectId:"ilimo-tinass",storageBucket:"ilimo-tinass.firebasestorage.app",messagingSenderId:"156762095891",appId:"1:156762095891:web:c257d8811a83c7e1241ae6"};
+
+// ============================================================
+// STARTUP - Completely independent of external scripts
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+  try { document.getElementById('dash-date').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'}); } catch(e){}
+  try { document.getElementById('a-date').valueAsDate=new Date(); } catch(e){}
+  var k=localStorage.getItem('ilimo_key');
+  if(k){KEY=(k==='NONE'?'':k);showSc('login');}
+  else{showSc('setup');}
+});
+
+function showSc(n){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('show');s.style.display='none';});
+  document.getElementById('app').style.display='none';
+  document.getElementById('app').classList.remove('show');
+  if(n==='app'){
+    document.getElementById('app').style.display='flex';
+    document.getElementById('app').classList.add('show');
+    initFirebase();
+  } else {
+    var el=document.getElementById('sc-'+n);
+    if(el){el.style.display='flex';el.classList.add('show');}
+  }
+}
+
+function goApp(){
+  var k=document.getElementById('api-key-input').value.trim();
+  KEY=k||'';
+  localStorage.setItem('ilimo_key',k||'NONE');
+  showSc('login');
+}
+
+function changeKey(){localStorage.removeItem('ilimo_key');KEY='';showSc('setup');}
+
+function login(u){
+  var p={directrice:{n:'Directrice',r:'Direction',c:'#c0392b',l:'D'},commercial:{n:'Commercial',r:'Vente & Location',c:'#1a6fa8',l:'C'},assistante:{n:'Assistante',r:'Administration',c:'#1a9e6e',l:'A'}};
+  USER={...p[u],id:u};
+  document.getElementById('s-av').textContent=p[u].l;
+  document.getElementById('s-av').style.background=p[u].c;
+  document.getElementById('s-nm').textContent=p[u].n;
+  document.getElementById('s-rl').textContent=p[u].r;
+  showSc('app');
+}
+
+function logout(){USER=null;chatHist=[];showSc('login');}
+
+// ============================================================
+// FIREBASE - Loaded after app opens
+// ============================================================
+function initFirebase(){
+  if(DB)return;
+  var s1=document.createElement('script');
+  s1.src='https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js';
+  s1.onload=function(){
+    var s2=document.createElement('script');
+    s2.src='https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js';
+    s2.onload=function(){
+      try{
+        if(!firebase.apps.length)firebase.initializeApp(FB_CFG);
+        DB=firebase.firestore();
+        loadData();
+      }catch(e){toast('Connexion Firebase échouée','er');}
+    };
+    s2.onerror=function(){toast('Chargement Firebase échoué — mode hors ligne','er');};
+    document.head.appendChild(s2);
+  };
+  s1.onerror=function(){toast('Pas de connexion internet — mode hors ligne','er');};
+  document.head.appendChild(s1);
+}
+
+function loadData(){
+  if(!DB)return;
+  DB.collection('biens').orderBy('createdAt','desc').onSnapshot(function(s){biens=s.docs.map(function(d){return Object.assign({id:d.id},d.data());});renderB();renderDash();updStats();popSels();});
+  DB.collection('contacts').orderBy('createdAt','desc').onSnapshot(function(s){contacts=s.docs.map(function(d){return Object.assign({id:d.id},d.data());});renderC();updStats();popSels();});
+  DB.collection('activites').orderBy('createdAt','desc').onSnapshot(function(s){activites=s.docs.map(function(d){return Object.assign({id:d.id},d.data());});renderA();renderDash();updStats();});
+}
+
+function updStats(){
+  document.getElementById('st-b').textContent=biens.length;
+  document.getElementById('st-c').textContent=contacts.length;
+  var s=new Date();s.setDate(1);s.setHours(0,0,0,0);
+  document.getElementById('st-a').textContent=activites.filter(function(a){return a.createdAt&&a.createdAt.toDate&&a.createdAt.toDate()>=s;}).length;
+  document.getElementById('st-o').textContent=activites.filter(function(a){return a.type==='offre'&&a.statut==='en cours';}).length;
+}
+
+function popSels(){
+  var bo='<option value="">--</option>'+biens.map(function(b){return'<option value="'+b.id+'">'+(b.ref||'')+' '+b.type+' '+(b.titre||'')+(b.ville?' ('+b.ville+')':'')+'</option>';}).join('');
+  var co='<option value="">--</option>'+contacts.map(function(c){return'<option value="'+c.id+'">'+(c.prenom||'')+' '+(c.nom||'')+' ('+(c.type||'')+')</option>';}).join('');
+  ['a-bien','d-bien'].forEach(function(id){var e=document.getElementById(id);if(e)e.innerHTML=bo;});
+  ['a-cont','d-cont'].forEach(function(id){var e=document.getElementById(id);if(e)e.innerHTML=co;});
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function pg(n){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('on');});
+  document.querySelectorAll('.ni').forEach(function(x){x.classList.remove('on');});
+  document.getElementById('pg-'+n).classList.add('on');
+  var idx={dashboard:0,biens:1,contacts:2,activite:3,documents:4,assistant:5,parametres:6};
+  var nis=document.querySelectorAll('.ni');
+  if(idx[n]!==undefined&&nis[idx[n]])nis[idx[n]].classList.add('on');
+  if(n==='biens')renderB();
+  if(n==='contacts')renderC();
+  if(n==='activite')renderA();
+  if(n==='parametres')initPrm();
+}
+
+function swTab(id,btn){
+  var parent=btn.closest('.md-b,.content');
+  if(parent){parent.querySelectorAll('.tp').forEach(function(t){t.classList.remove('on');});parent.querySelectorAll('.tab,.itab').forEach(function(t){t.classList.remove('on');});}
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('on');
+}
+
+function tgC(id){var el=document.getElementById(id);var cb=el.querySelector('input');el.classList.toggle('on',cb.checked);}
+
+// ============================================================
+// BIENS
+// ============================================================
+function fB(f,btn){bF=f;document.querySelectorAll('#pg-biens .fbtn').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');renderB();}
+
+function sBadge(s){return{disponible:'bg',negociation:'bo',vendu:'bb',loue:'by',retire:'bz'}[s]||'bz';}
+
+function renderB(){
+  var s=(document.getElementById('srch-b')||{value:''}).value.toLowerCase();
+  var data=biens.filter(function(b){
+    if(bF==='vente')return b.activite==='vente'||b.activite==='les deux';
+    if(bF==='location')return b.activite==='location'||b.activite==='les deux';
+    if(bF!=='tous')return b.statut===bF;
+    return true;
+  });
+  if(s)data=data.filter(function(b){return JSON.stringify(b).toLowerCase().indexOf(s)>-1;});
+  var tb=document.getElementById('tb-b');
+  if(!data.length){tb.innerHTML='<tr><td colspan="10"><div class="es"><div class="ei">🏢</div><h3>Aucun bien</h3></div></td></tr>';return;}
+  var icons={jar:'🌳',ter:'🪴',mer:'🌊',mnt:'⛰️',pis:'🏊',ham:'🛁',ssp:'💪',ten:'🎾',gar:'🚗',asc:'🛗',con:'👨‍💼',rng:'📦',che:'🔥',cli:'❄️',cui:'🍳',pmr:'♿',sec:'🔒',dvt:'🪟',pbl:'🚪'};
+  tb.innerHTML=data.map(function(b){
+    var ph=b.photos&&b.photos.length?'<img src="'+b.photos[0].url+'" class="bp" onclick="oPV(0,'+JSON.stringify(b.photos.map(function(p){return p.url;})).replace(/"/g,'&quot;')+')">'
+      :'<div class="bn">🏢</div>';
+    var pr=CHECKS.filter(function(c){return b[c];}).slice(0,4).map(function(c){return icons[c]||'';}).join(' ');
+    return'<tr><td>'+ph+(b.photos&&b.photos.length>1?'<br><small style="color:#6b7a8d">📸'+b.photos.length+'</small>':'')+'</td>'
+      +'<td><strong>'+(b.ref||'-')+'</strong></td>'
+      +'<td>'+(b.type||'-')+'</td>'
+      +'<td><strong>'+(b.titre||'-')+'</strong><div style="font-size:11px;color:#6b7a8d">'+[b.ville,b.quartier].filter(Boolean).join(' · ')+'</div>'+(pr?'<div style="font-size:12px">'+pr+'</div>':'')+'</td>'
+      +'<td><span class="bdg '+(b.activite==='vente'?'bb':b.activite==='location'?'bg':'by')+'">'+(b.activite||'-')+'</span></td>'
+      +'<td><strong>'+(b.prix?Number(b.prix).toLocaleString('fr-MA')+' MAD':'-')+'</strong>'+(b.b_scon?'<br><small>'+b.b_scon+'m²</small>':'')+'</td>'
+      +'<td><span class="bdg '+sBadge(b.statut)+'">'+(b.statut||'-')+'</span></td>'
+      +'<td>'+(b.standing?'<span class="bdg by">'+b.standing+'</span>':'-')+'</td>'
+      +'<td>'+(b.proprietaire||'-')+'</td>'
+      +'<td style="white-space:nowrap">'
+      +'<button class="btn btn-sm btn-o" onclick=\'editB('+JSON.stringify(b).replace(/'/g,"\\'")+')\'>✏️</button> '
+      +'<button class="btn btn-sm btn-d" onclick="delB(\''+b.id+'\')">🗑</button>'
+      +'</td></tr>';
+  }).join('');
+}
+
+function openBienModal(b){
+  pendPh=b&&b.photos?[...b.photos]:[];
+  document.getElementById('mo-bien-t').textContent=b?'Modifier le bien':'Nouveau bien';
+  document.getElementById('b-id').value=b?b.id:'';
+  var fs=['type','act','titre','prix','comm','stat','stand','etat','meub','prop','desc','notes','rem'];
+  var ks=['type','activite','titre','prix','commission','statut','standing','etat','meuble','proprietaire','description','notes','remarques'];
+  fs.forEach(function(f,i){var e=document.getElementById('b-'+f);if(e)e.value=(b&&b[ks[i]])||'';});
+  if(!b){document.getElementById('b-stat').value='disponible';document.getElementById('b-act').value='vente';}
+  var locFs=['ville','adr','lat','lng'];
+  var locKs=['ville','adresse','lat','lng'];
+  locFs.forEach(function(f,i){var e=document.getElementById('b-'+f);if(e)e.value=(b&&b[locKs[i]])||'';});
+  updQ();
+  setTimeout(function(){var e=document.getElementById('b-qrt');if(e&&b&&b.quartier)e.value=b.quartier;},60);
+  var carFs=['ster','scon','ann','npi','nch','nsb','sol','etg','ori','rest'];
+  var carKs=['surfaceTerrain','surfaceConstuite','anneeConstruction','nbPieces','nbChambres','nbSDB','typeSol','etage','orientation','restaurant'];
+  carFs.forEach(function(f,i){var e=document.getElementById('b-'+f);if(e)e.value=(b&&b[carKs[i]])||'';});
+  CHECKS.forEach(function(c){var cb=document.getElementById('b-'+c),ci=document.getElementById('ci-'+c);if(cb){cb.checked=(b&&b[c])||false;if(ci)ci.classList.toggle('on',cb.checked);}});
+  ['nat','avna','aex','alc'].forEach(function(f){var k={nat:'naturePropriete',avna:'avna',aex:'autorisationExploitation',alc:'licenceAlcool'}[f];var e=document.getElementById('b-'+f);if(e)e.value=(b&&b[k])||'';});
+  document.getElementById('up-p').textContent=pendPh.length?pendPh.length+' photo(s)':'';
+  renderPhGr();
+  swTab('t-gen',document.querySelector('#mo-bien .tab'));
+  document.getElementById('mo-bien').classList.add('show');
+}
+
+function editB(b){openBienModal(b);}
+
+async function saveBien(){
+  var titre=document.getElementById('b-titre').value.trim();
+  if(!titre){toast('Le titre est obligatoire','er');return;}
+  if(!DB){toast('Base de données non connectée','er');return;}
+  var id=document.getElementById('b-id').value;
+  var data={
+    type:document.getElementById('b-type').value,
+    activite:document.getElementById('b-act').value,
+    titre:titre,
+    prix:document.getElementById('b-prix').value,
+    commission:document.getElementById('b-comm').value,
+    statut:document.getElementById('b-stat').value,
+    standing:document.getElementById('b-stand').value,
+    etat:document.getElementById('b-etat').value,
+    meuble:document.getElementById('b-meub').value,
+    proprietaire:document.getElementById('b-prop').value,
+    description:document.getElementById('b-desc').value,
+    notes:document.getElementById('b-notes').value,
+    remarques:document.getElementById('b-rem').value,
+    ville:document.getElementById('b-ville').value,
+    quartier:document.getElementById('b-qrt').value,
+    adresse:document.getElementById('b-adr').value,
+    lat:document.getElementById('b-lat').value,
+    lng:document.getElementById('b-lng').value,
+    surfaceTerrain:document.getElementById('b-ster').value,
+    surfaceConstuite:document.getElementById('b-scon').value,
+    anneeConstruction:document.getElementById('b-ann').value,
+    nbPieces:document.getElementById('b-npi').value,
+    nbChambres:document.getElementById('b-nch').value,
+    nbSDB:document.getElementById('b-nsb').value,
+    typeSol:document.getElementById('b-sol').value,
+    etage:document.getElementById('b-etg').value,
+    orientation:document.getElementById('b-ori').value,
+    restaurant:document.getElementById('b-rest').value,
+    naturePropriete:document.getElementById('b-nat').value,
+    avna:document.getElementById('b-avna').value,
+    autorisationExploitation:document.getElementById('b-aex').value,
+    licenceAlcool:document.getElementById('b-alc').value,
+    photos:pendPh,
+    addedBy:USER?USER.n:'',
+    updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+  };
+  CHECKS.forEach(function(c){var e=document.getElementById('b-'+c);if(e)data[c]=e.checked;});
+  try{
+    if(id){await DB.collection('biens').doc(id).update(data);}
+    else{data.ref='B-'+String(biens.length+1).padStart(4,'0');data.createdAt=firebase.firestore.FieldValue.serverTimestamp();await DB.collection('biens').add(data);}
+    closeMo('mo-bien');toast('Bien enregistré ✓','ok');
+  }catch(e){toast('Erreur: '+e.message,'er');}
+}
+
+async function delB(id){if(!confirm('Supprimer ce bien ?'))return;await DB.collection('biens').doc(id).delete();toast('Supprimé','ok');}
+
+// ============================================================
+// CONTACTS
+// ============================================================
+function fC(f,btn){cF=f;document.querySelectorAll('#pg-contacts .fbtn').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');renderC();}
+
+function renderC(){
+  var s=(document.getElementById('srch-c')||{value:''}).value.toLowerCase();
+  var data=contacts.filter(function(c){return cF==='tous'||c.type===cF;});
+  if(s)data=data.filter(function(c){return JSON.stringify(c).toLowerCase().indexOf(s)>-1;});
+  var tb=document.getElementById('tb-c');
+  if(!data.length){tb.innerHTML='<tr><td colspan="8"><div class="es"><div class="ei">👥</div><h3>Aucun contact</h3></div></td></tr>';return;}
+  tb.innerHTML=data.map(function(c){return'<tr>'
+    +'<td><strong>'+(c.prenom||'')+' '+(c.nom||'')+'</strong></td>'
+    +'<td><span class="bdg '+(c.type==='proprietaire'?'bb':c.type==='acquereur'?'bg':'by')+'">'+(c.type||'-')+'</span></td>'
+    +'<td>'+(c.tel||'-')+'</td>'
+    +'<td><a href="mailto:'+(c.email||'')+'" style="color:#1a6fa8">'+(c.email||'-')+'</a></td>'
+    +'<td>'+(c.nationalite||'-')+'</td>'
+    +'<td>'+(c.budget?Number(c.budget).toLocaleString('fr-MA')+' MAD':'-')+'</td>'
+    +'<td><small>'+(c.createdAt&&c.createdAt.toDate?c.createdAt.toDate().toLocaleDateString('fr-FR'):'-')+'</small></td>'
+    +'<td style="white-space:nowrap"><button class="btn btn-sm btn-o" onclick=\'editC('+JSON.stringify(c).replace(/'/g,"\\'")+')\'>✏️</button> <button class="btn btn-sm btn-d" onclick="delC(\''+c.id+'\')">🗑</button></td>'
+    +'</tr>';}).join('');
+}
+
+function openContactModal(c){
+  document.getElementById('mo-c-t').textContent=c?'Modifier':'Nouveau contact';
+  document.getElementById('c-id').value=c?c.id:'';
+  ['type','nat','nom','pre','tel','email','adr','bud','rch','notes'].forEach(function(f){
+    var k={type:'type',nat:'nationalite',nom:'nom',pre:'prenom',tel:'tel',email:'email',adr:'adresse',bud:'budget',rch:'recherche',notes:'notes'}[f];
+    var e=document.getElementById('c-'+f);if(e)e.value=(c&&c[k])||'';
+  });
+  document.getElementById('mo-contact').classList.add('show');
+}
+function editC(c){openContactModal(c);}
+
+async function saveContact(){
+  var nom=document.getElementById('c-nom').value.trim();
+  if(!nom){toast('Nom obligatoire','er');return;}
+  if(!DB){toast('Base non connectée','er');return;}
+  var id=document.getElementById('c-id').value;
+  var data={type:document.getElementById('c-type').value,nom:nom,prenom:document.getElementById('c-pre').value,tel:document.getElementById('c-tel').value,email:document.getElementById('c-email').value,adresse:document.getElementById('c-adr').value,nationalite:document.getElementById('c-nat').value,budget:document.getElementById('c-bud').value,recherche:document.getElementById('c-rch').value,notes:document.getElementById('c-notes').value,addedBy:USER?USER.n:'',updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+  try{if(id){await DB.collection('contacts').doc(id).update(data);}else{data.createdAt=firebase.firestore.FieldValue.serverTimestamp();await DB.collection('contacts').add(data);}closeMo('mo-contact');toast('Contact enregistré ✓','ok');}catch(e){toast('Erreur: '+e.message,'er');}
+}
+async function delC(id){if(!confirm('Supprimer ?'))return;await DB.collection('contacts').doc(id).delete();toast('Supprimé','ok');}
+
+// ============================================================
+// ACTIVITE
+// ============================================================
+function fA(f,btn){aF=f;document.querySelectorAll('#pg-activite .fbtn').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');renderA();}
+
+function renderA(){
+  var data=aF==='tous'?activites:activites.filter(function(a){return a.type===aF;});
+  var el=document.getElementById('al');
+  if(!data.length){el.innerHTML='<div class="es"><div class="ei">📋</div><h3>Aucune activité</h3></div>';return;}
+  var icons={demande:'📩',visite:'🏠',relance:'📞',offre:'💰'};
+  var colors={demande:'#e8f3fb',visite:'#e6f7f1',relance:'#fff8e6',offre:'#fdecea'};
+  el.innerHTML=data.map(function(a){
+    var b=biens.find(function(x){return x.id===a.bienId;});
+    var c=contacts.find(function(x){return x.id===a.contactId;});
+    return'<div class="ai"><div class="aic" style="background:'+(colors[a.type]||'#f0f4f8')+'">'+(icons[a.type]||'📋')+'</div>'
+      +'<div style="flex:1"><div style="font-weight:600;font-size:14px">'+(a.type?a.type.charAt(0).toUpperCase()+a.type.slice(1):'')+(a.montant?' — '+Number(a.montant).toLocaleString('fr-MA')+' MAD':'')+'</div>'
+      +'<div class="aim"><span>📅 '+(a.date||'-')+'</span>'+(b?'<span>🏢 '+b.type+' '+(b.quartier||'')+'</span>':'')+(c?'<span>👤 '+(c.prenom||'')+' '+(c.nom||'')+'</span>':'')
+      +'<span><span class="bdg '+(a.statut==='positif'?'bg':a.statut==='negatif'?'br':'by')+'">'+(a.statut||'')+'</span></span>'
+      +'<span style="color:#6b7a8d">Par '+(a.addedBy||'-')+'</span></div>'
+      +(a.notes?'<div style="margin-top:4px;font-size:12px;color:#6b7a8d">'+a.notes+'</div>':'')
+      +'</div><button class="btn btn-sm btn-d" onclick="delA(\''+a.id+'\')">🗑</button></div>';
+  }).join('');
+}
+
+function openActiviteModal(){
+  document.getElementById('a-date').valueAsDate=new Date();
+  document.getElementById('a-type').value='visite';
+  document.getElementById('a-stat').value='en cours';
+  document.getElementById('a-notes').value='';
+  document.getElementById('a-mnt').value='';
+  popSels();
+  document.getElementById('mo-act').classList.add('show');
+}
+async function saveAct(){
+  if(!DB){toast('Base non connectée','er');return;}
+  var data={type:document.getElementById('a-type').value,date:document.getElementById('a-date').value,bienId:document.getElementById('a-bien').value,contactId:document.getElementById('a-cont').value,montant:document.getElementById('a-mnt').value,statut:document.getElementById('a-stat').value,notes:document.getElementById('a-notes').value,addedBy:USER?USER.n:'',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  try{await DB.collection('activites').add(data);closeMo('mo-act');toast('Activité enregistrée ✓','ok');}catch(e){toast('Erreur: '+e.message,'er');}
+}
+async function delA(id){if(!confirm('Supprimer ?'))return;await DB.collection('activites').doc(id).delete();toast('Supprimé','ok');}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDash(){
+  var bl=document.getElementById('db-b');
+  bl.innerHTML=biens.slice(0,5).map(function(b){return'<div class="di"><div class="di-i">'+(b.photos&&b.photos.length?'<img src="'+b.photos[0].url+'" style="width:32px;height:32px;border-radius:50%;object-fit:cover">':'🏢')+'</div><div class="di-f"><div class="di-t">'+b.type+(b.ville?' — '+b.ville:'')+'</div><div class="di-s">'+(b.titre||'')+'</div></div><span class="bdg '+sBadge(b.statut)+'">'+(b.statut||'')+'</span></div>';}).join('')||'<div class="es" style="padding:16px"><p>Aucun bien</p></div>';
+  var icons={demande:'📩',visite:'🏠',relance:'📞',offre:'💰'};
+  var al=document.getElementById('db-a');
+  al.innerHTML=activites.slice(0,5).map(function(a){var c=contacts.find(function(x){return x.id===a.contactId;});return'<div class="di"><div class="di-i">'+(icons[a.type]||'📋')+'</div><div class="di-f"><div class="di-t">'+(a.type?a.type.charAt(0).toUpperCase()+a.type.slice(1):'')+'</div><div class="di-s">'+(c?c.prenom+' '+c.nom:'')+' · '+(a.date||'')+'</div></div><span class="bdg '+(a.statut==='positif'?'bg':a.statut==='negatif'?'br':'by')+'">'+(a.statut||'')+'</span></div>';}).join('')||'<div class="es" style="padding:16px"><p>Aucune activité</p></div>';
+}
+
+// ============================================================
+// QUARTIERS
+// ============================================================
+function updQ(){
+  var v=document.getElementById('b-ville').value;
+  var q=document.getElementById('b-qrt');
+  if(QLISTS[v]){q.innerHTML='<option value="">--</option>'+QLISTS[v].map(function(x){return'<option>'+x+'</option>';}).join('');}
+  else{q.innerHTML='<option value="">--</option>';}
+}
+
+function getGPS(){
+  var st=document.getElementById('gps-st');
+  st.textContent='⏳ Localisation...';
+  if(!navigator.geolocation){st.textContent='❌ Non supporté';return;}
+  navigator.geolocation.getCurrentPosition(function(p){document.getElementById('b-lat').value=p.coords.latitude.toFixed(6);document.getElementById('b-lng').value=p.coords.longitude.toFixed(6);st.textContent='✅ Position capturée';},function(){st.textContent='❌ Impossible';});
+}
+
+// ============================================================
+// PHOTOS CLOUDINARY
+// ============================================================
+async function uplPh(file){
+  var fd=new FormData();fd.append('file',file);fd.append('upload_preset',CLOUD_PRESET);
+  var r=await fetch(CLOUD_URL,{method:'POST',body:fd});
+  if(!r.ok)throw new Error('Upload échoué');
+  var d=await r.json();return{url:d.secure_url,publicId:d.public_id};
+}
+async function hpf(files){
+  var arr=Array.from(files).slice(0,10-pendPh.length);if(!arr.length)return;
+  var up=document.getElementById('up-p');
+  for(var i=0;i<arr.length;i++){up.textContent='⏳ Upload '+(i+1)+'/'+arr.length+'...';try{var p=await uplPh(arr[i]);pendPh.push(p);renderPhGr();}catch(e){toast('Erreur upload','er');}}
+  up.textContent='✅ '+pendPh.length+' photo(s)';
+  document.getElementById('ph-in').value='';
+}
+function renderPhGr(){
+  var g=document.getElementById('ph-gr');
+  g.innerHTML=pendPh.map(function(p,i){return'<div class="pt"><img src="'+p.url+'" onclick="oPV('+i+',pendPh.map(function(x){return x.url;}))" alt=""><button class="dp" onclick="rmPh('+i+',event)">✕</button>'+(i===0?'<div class="mp">Principale</div>':'')+'</div>';}).join('');
+}
+function rmPh(i,e){e.stopPropagation();pendPh.splice(i,1);renderPhGr();document.getElementById('up-p').textContent=pendPh.length?pendPh.length+' photo(s)':'';}
+function dvr(e){e.preventDefault();document.getElementById('drop-z').style.borderColor='#1a6fa8';}
+function dlv(){document.getElementById('drop-z').style.borderColor='';}
+function ddr(e){e.preventDefault();dlv();hpf(e.dataTransfer.files);}
+
+// ============================================================
+// PHOTO VIEWER
+// ============================================================
+function oPV(i,photos){pvPh=Array.isArray(photos)?photos:photos;pvIdx=i;shPV();document.getElementById('pv').classList.add('show');}
+function shPV(){document.getElementById('pv-img').src=pvPh[pvIdx];document.getElementById('pv-ct').textContent=(pvIdx+1)+' / '+pvPh.length;}
+function pvPrev(){if(pvIdx>0){pvIdx--;shPV();}}
+function pvNext(){if(pvIdx<pvPh.length-1){pvIdx++;shPV();}}
+function clPV(){document.getElementById('pv').classList.remove('show');}
+document.getElementById('pv').addEventListener('click',function(e){if(e.target===this)clPV();});
+
+// ============================================================
+// DOCUMENTS IA
+// ============================================================
+var DT={mandat_vente_exclu:'Mandat de vente EXCLUSIF',mandat_vente_simple:'Mandat de vente SIMPLE',mandat_location:'Mandat de location',fiche_visite:'Fiche de visite',recu_commission:'Reçu de commission',recu_reservation:'Reçu de réservation',annonce:'Annonce commerciale',contrat_location:'Contrat de location',reponse_client:'Réponse client'};
+
+function openDoc(t){
+  docType=t;
+  document.getElementById('doc-t').textContent=DT[t]||t;
+  document.getElementById('doc-res').innerHTML='';
+  document.getElementById('btn-cp').style.display='none';
+  document.getElementById('d-info').value='';
+  popSels();
+  document.getElementById('mo-doc').classList.add('show');
+}
+
+async function genDoc(){
+  if(!KEY){document.getElementById('doc-res').innerHTML='<div style="color:#d93025;padding:12px;background:#fdecea;border-radius:8px;font-size:13px">⚠️ Clé API non configurée. Allez dans ⚙️ Paramètres pour ajouter votre clé Anthropic.</div>';return;}
+  var b=biens.find(function(x){return x.id===document.getElementById('d-bien').value;});
+  var c=contacts.find(function(x){return x.id===document.getElementById('d-cont').value;});
+  var lang=document.getElementById('d-lang').value;
+  var info=document.getElementById('d-info').value;
+  var bI=b?'Bien: '+b.type+', '+b.titre+', '+b.ville+' '+b.quartier+', Surface: '+(b.surfaceConstuite||'N/A')+'m², Prix: '+(b.prix?Number(b.prix).toLocaleString('fr-MA')+' MAD':'N/A')+', Commission: '+(b.commission||'N/A')+', Standing: '+(b.standing||'N/A'):'Aucun bien';
+  var cI=c?'Contact: '+(c.prenom||'')+' '+(c.nom||'')+', Tel: '+(c.tel||'')+', Email: '+(c.email||''):'Aucun contact';
+  var ps={mandat_vente_exclu:'Rédige un mandat de vente EXCLUSIF professionnel pour TINASS IMMO Marrakech. '+bI+'. '+cI+'. '+info+'. Langue: '+lang+'.',mandat_vente_simple:'Rédige un mandat de vente SIMPLE pour TINASS IMMO. '+bI+'. '+cI+'. '+info+'. Langue: '+lang+'.',mandat_location:'Rédige un mandat de location pour TINASS IMMO. Commission: 1 mois loyer. '+bI+'. '+cI+'. '+info+'. Langue: '+lang+'.',fiche_visite:'Rédige une fiche de visite pour TINASS IMMO. '+bI+'. '+cI+'. '+info+'. Langue: '+lang+'.',recu_commission:'Rédige un reçu de commission pour TINASS IMMO. '+bI+'. '+cI+'. '+info+'. Langue: '+lang+'.',recu_reservation:'Rédige un reçu de réservation pour TINASS IMMO. '+bI+'. '+cI+'. '+info+'. Langue: '+lang+'.',annonce:'Rédige une annonce immobilière + version réseaux sociaux pour TINASS IMMO. '+bI+'. '+info+'. Langue: '+lang+'.',contrat_location:'Rédige un contrat de location complet et légal au Maroc pour TINASS IMMO. '+bI+'. '+cI+'. '+info+'. Langue: '+lang+'.',reponse_client:'Rédige une réponse client professionnelle pour TINASS IMMO. Version email + WhatsApp. '+bI+'. '+cI+'. Contexte: '+info+'. Langue: '+lang+'.'};
+  var el=document.getElementById('doc-res');
+  el.innerHTML='<div class="ld">✨ Génération en cours <span class="da"><span>.</span><span>.</span><span>.</span></span></div>';
+  try{
+    var r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:'Tu es expert juridique immobilier au Maroc. Tu travailles pour TINASS IMMO à Marrakech. Tes documents sont précis, légaux et professionnels.',messages:[{role:'user',content:ps[docType]||'Génère un document immobilier.'}]})});
+    var d=await r.json();if(d.error)throw new Error(d.error.message);
+    var txt=d.content.filter(function(x){return x.type==='text';}).map(function(x){return x.text;}).join('\n');
+    el.innerHTML='<div class="do">'+txt+'</div>';
+    document.getElementById('btn-cp').style.display='inline-flex';
+  }catch(e){el.innerHTML='<div class="do" style="color:#d93025">Erreur: '+e.message+'</div>';}
+}
+function cpDoc(){navigator.clipboard.writeText((document.querySelector('.do')||{textContent:''}).textContent).then(function(){toast('Copié !','ok');});}
+
+// ============================================================
+// CHAT
+// ============================================================
+function clrChat(){chatHist=[];document.getElementById('chat-msgs').innerHTML='';}
+function ckd(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();}}
+
+async function sendChat(){
+  if(!KEY){var msgs=document.getElementById('chat-msgs');msgs.innerHTML+='<div style="color:#d93025;font-size:12px;padding:8px;background:#fdecea;border-radius:8px">⚠️ Clé API non configurée. Allez dans ⚙️ Paramètres.</div>';return;}
+  var inp=document.getElementById('chat-in');var txt=inp.value.trim();if(!txt)return;
+  inp.value='';inp.style.height='auto';
+  var msgs=document.getElementById('chat-msgs');
+  msgs.innerHTML+='<div style="display:flex;justify-content:flex-end"><div style="max-width:75%;background:#1a6fa8;color:white;padding:9px 13px;border-radius:10px 2px 10px 10px;font-size:13px;line-height:1.6">'+txt+'</div></div>';
+  var tid='t'+Date.now();
+  msgs.innerHTML+='<div id="'+tid+'" style="padding:8px 0"><div style="background:white;border:1px solid #dde3ea;padding:9px 13px;border-radius:2px 10px 10px 10px;font-size:13px;color:#6b7a8d" class="da"><span>.</span><span>.</span><span>.</span></div></div>';
+  msgs.scrollTop=msgs.scrollHeight;
+  chatHist.push({role:'user',content:txt});
+  try{
+    var r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:"Tu es l'assistante IA de TINASS IMMO à Marrakech. Tu aides "+(USER?USER.n:"l'équipe")+'. '+biens.length+' biens, '+contacts.length+' contacts. Date: '+new Date().toLocaleDateString('fr-FR')+'. Réponds en français.',messages:chatHist})});
+    var d=await r.json();if(d.error)throw new Error(d.error.message);
+    var res=d.content.filter(function(x){return x.type==='text';}).map(function(x){return x.text;}).join('\n');
+    chatHist.push({role:'assistant',content:res});
+    document.getElementById(tid).remove();
+    msgs.innerHTML+='<div style="display:flex"><div style="max-width:80%;background:white;border:1px solid #dde3ea;padding:9px 13px;border-radius:2px 10px 10px 10px;font-size:13px;line-height:1.65;white-space:pre-wrap">'+res+'</div></div>';
+  }catch(e){document.getElementById(tid).remove();msgs.innerHTML+='<div style="color:#d93025;font-size:12px;padding:8px">Erreur: '+e.message+'</div>';}
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+// ============================================================
+// PARAMETRES
+// ============================================================
+function initPrm(){
+  document.getElementById('key-st').innerHTML=KEY?'<span style="color:#1a9e6e;font-weight:600">✅ Clé configurée et active</span>':'<span style="color:#d93025;font-weight:600">⚠️ Aucune clé — IA désactivée</span>';
+  document.getElementById('set-key').value='';
+}
+function saveKey(){var k=document.getElementById('set-key').value.trim();if(!k){toast('Entrez une clé','er');return;}KEY=k;localStorage.setItem('ilimo_key',k);toast('Clé enregistrée ✓','ok');initPrm();}
+
+// ============================================================
+// IMPORT MUBAWAB
+// ============================================================
+var MB=[
+  {mubawabId:'8296126',titre:'Très Bel Appartement Haut de gamme à Guéliz',type:'Appartement',activite:'vente',prix:'1900000',nbChambres:'1',surfaceConstuite:'79',ville:'Marrakech',quartier:'Guéliz',statut:'disponible',photo:'https://www.mubawab-media.com/ad/8/296/126F/m/A2gmu528222oosq8_2_82133876.avif',description:'Opportunité rare – Guéliz, au dernier étage. Appartement lumineux de 79m², emplacement stratégique.'},
+  {mubawabId:'8287174',titre:'Villa meublée avec piscine à Tamansourt',type:'Villa',activite:'location',prix:'12000',nbChambres:'3',surfaceConstuite:'300',ville:'Marrakech',quartier:'Route de Safi',statut:'disponible',photo:'https://www.mubawab-media.com/ad/8/287/174F/m/1000456318_81792614.avif',piscine:true,meuble:'Meublé'},
+  {mubawabId:'8303259',titre:'Jolie villa avec piscine et jardin 10mn Guéliz',type:'Villa',activite:'vente',prix:'3750000',nbChambres:'5',surfaceConstuite:'338',ville:'Marrakech',quartier:'Route Casablanca',statut:'disponible',photo:'https://www.mubawab-media.com/ad/8/303/259F/m/1000470827_81965968.avif',piscine:true,jardin:true,securite:true},
+  {mubawabId:'8303546',titre:'Villa avec piscine à Targa',type:'Villa',activite:'vente',prix:'3980000',nbChambres:'4',surfaceConstuite:'380',ville:'Marrakech',quartier:'Targa',statut:'disponible',photo:'https://www.mubawab-media.com/ad/8/303/546F/m/1000472856_81969107.avif',piscine:true},
+  {mubawabId:'8308027',titre:'Belle villa plain pied piscine LLD VIDE',type:'Villa',activite:'location',prix:'42000',nbChambres:'4',surfaceConstuite:'1000',ville:'Marrakech',quartier:'Route de Tahanaout',statut:'disponible',photo:'https://www.mubawab-media.com/ad/8/308/027F/m/1000478016_82014049.avif',piscine:true,meuble:'Vide',etat:'Neuf'},
+  {mubawabId:'8309073',titre:'Appart rénové grande terrasse à Guéliz',type:'Appartement',activite:'vente',prix:'220000',nbChambres:'2',surfaceConstuite:'136',ville:'Marrakech',quartier:'Guéliz',statut:'disponible',photo:'https://www.mubawab-media.com/ad/8/309/073F/m/1000479184_82025410.avif',terrasse:true},
+  {mubawabId:'8305541',titre:'Appartement meublé Prestigia front Golf',type:'Appartement',activite:'location',prix:'17000',nbChambres:'3',surfaceConstuite:'95',ville:'Marrakech',quartier:'Agdal',statut:'disponible',photo:'https://www.mubawab-media.com/ad/8/305/541F/m/1000475338_81988299.avif',meuble:'Meublé',standing:'Haut standing'},
+  {mubawabId:'8315674',titre:'Villa front Golf piscine et hammam',type:'Villa',activite:'location',prix:'26000',nbChambres:'4',surfaceConstuite:'200',ville:'Marrakech',quartier:"Route de l'Ourika",statut:'disponible',photo:'https://www.mubawab-media.com/ad/8/315/674F/m/1000485682_82097126.avif',piscine:true,hammam:true,tennis:true},
+  {mubawabId:'8316718',titre:'Appartement plein Guéliz à vendre',type:'Appartement',activite:'vente',prix:'170000',nbChambres:'2',surfaceConstuite:'100',ville:'Marrakech',quartier:'Guéliz',statut:'disponible',photo:'https://www.mubawab-media.com/ad/8/316/718F/m/salon_82114446.avif'},
+  {mubawabId:'8316918',titre:'Villa de campagne titrée Route de Fès',type:'Villa',activite:'vente',prix:'250000',nbChambres:'4',surfaceConstuite:'260',ville:'Marrakech',quartier:'Route de Fès',statut:'disponible',photo:'https://www.mubawab-media.com/ad/8/316/918F/m/20260205_120038_82109666.avif',naturePropriete:'Titré',etat:'Neuf'},
+  {mubawabId:'8317158',titre:'Appartement luxueux rénové meublé Guéliz',type:'Appartement',activite:'vente',prix:'2800000',nbChambres:'2',surfaceConstuite:'115',ville:'Marrakech',quartier:'Guéliz',statut:'disponible',photo:'https://www.mubawab-media.com/ad/8/317/158F/m/1000487307_82112222.avif',meuble:'Meublé',standing:'Haut standing'},
+  {mubawabId:'8313463',titre:'Petit Riad de charme rénové et titré',type:'Riad',activite:'vente',prix:'300000',nbChambres:'3',surfaceConstuite:'100',ville:'Marrakech',quartier:'Médina',statut:'disponible',photo:'https://www.mubawab-media.com/ad/8/313/463F/m/1000483030_82074268.avif',naturePropriete:'Titré'},
+  {mubawabId:'8313883',titre:'Appartement rez de jardin Prestigia Ambre',type:'Appartement',activite:'vente',prix:'300000',nbChambres:'2',surfaceConstuite:'145',ville:'Marrakech',quartier:'Agdal',statut:'disponible',photo:'https://www.mubawab-media.com/ad/8/313/883F/m/1000483446_82078821.avif',jardin:true,standing:'Haut standing'},
+  {mubawabId:'8314010',titre:'Riad rénové titré proche place des épices',type:'Riad',activite:'vente',prix:'390000',nbChambres:'3',surfaceConstuite:'110',ville:'Marrakech',quartier:'Médina',statut:'disponible',photo:'https://www.mubawab-media.com/ad/8/314/010F/m/1000483055_82079870.avif',naturePropriete:'Titré'},
+  {mubawabId:'8318386',titre:'Appartement meublé Bd Mohamed 6',type:'Appartement',activite:'location',prix:'12000',nbChambres:'2',surfaceConstuite:'98',ville:'Marrakech',quartier:'Agdal',statut:'disponible',photo:'https://www.mubawab-media.com/ad/8/318/386F/m/1000489291_82124969.avif',meuble:'Meublé'},
+  {mubawabId:'8314241',titre:'Sublime villa contemporaine avec piscine',type:'Villa',activite:'vente',prix:'5800000',nbChambres:'4',surfaceConstuite:'800',ville:'Marrakech',quartier:'Route Casablanca',statut:'disponible',photo:'https://www.mubawab-media.com/ad/8/314/241F/m/1000484111_82082183.avif',piscine:true,standing:'Luxe'},
+  {mubawabId:'8314616',titre:'Villa de ville jardin et terrasse',type:'Villa',activite:'vente',prix:'3400000',nbChambres:'5',surfaceConstuite:'330',ville:'Marrakech',quartier:'Médina',statut:'disponible',photo:'https://www.mubawab-media.com/ad/8/314/616F/m/20260309_115551_82085606.avif',jardin:true,terrasse:true},
+  {mubawabId:'8314760',titre:'Villa contemporaine piscine belle vue Ourika',type:'Villa',activite:'vente',prix:'6250000',nbChambres:'5',surfaceConstuite:'444',ville:'Marrakech',quartier:"Route de l'Ourika",statut:'disponible',photo:'https://www.mubawab-media.com/ad/8/314/760F/m/VILLA%20NZR_82087069.avif',piscine:true,standing:'Luxe'},
+  {mubawabId:'8105850',titre:'Très belle Villa piscine à louer meublée',type:'Villa',activite:'location',prix:'35000',nbChambres:'5',surfaceConstuite:'520',ville:'Marrakech',quartier:'Palmeraie',statut:'disponible',photo:'https://www.mubawab-media.com/ad/8/105/850F/m/1000289705_79903333.avif',piscine:true,meuble:'Meublé',standing:'Haut standing'},
+  {mubawabId:'8135370',titre:'Belle villa neuve à vendre km 8 Route Ourika',type:'Villa',activite:'vente',prix:'4950000',nbChambres:'4',surfaceConstuite:'540',ville:'Marrakech',quartier:"Route de l'Ourika",statut:'disponible',photo:'https://www.mubawab-media.com/ad/8/135/370F/m/1000316921_80203324.avif',tennis:true,piscine:true,etat:'Neuf'},
+  {mubawabId:'8132196',titre:'Riad de charme semi rénové bien situé',type:'Riad',activite:'vente',prix:'295000',nbChambres:'5',surfaceConstuite:'180',ville:'Marrakech',quartier:'Médina',statut:'disponible',photo:'https://www.mubawab-media.com/ad/8/132/196F/m/1000474665_81984019.avif',naturePropriete:'Melkia'}
+];
+
+function openImport(){renderImpList();document.getElementById('mo-imp').classList.add('show');}
+
+function renderImpList(){
+  var el=document.getElementById('imp-list');
+  el.innerHTML=MB.map(function(b,i){
+    var exists=biens.some(function(x){return x.mubawabId===b.mubawabId;});
+    return'<div style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid '+(exists?'#dde3ea':'#dde3ea')+';border-radius:8px;margin-bottom:7px;opacity:'+(exists?'.5':'1')+';cursor:'+(exists?'default':'pointer')+'" onclick="'+(exists?'':'tgImp('+i+')')+'" id="ii-'+i+'">'
+      +'<input type="checkbox" id="ic-'+i+'" '+(exists?'checked disabled':'')+' onchange="updCt()" style="width:15px;height:15px;accent-color:#1a6fa8;flex-shrink:0">'
+      +'<img src="'+b.photo+'" style="width:60px;height:46px;border-radius:5px;object-fit:cover;flex-shrink:0" onerror="this.style.display=\'none\'">'
+      +'<div style="flex:1"><div style="font-weight:600;font-size:13px">'+b.titre+'</div>'
+      +'<div style="font-size:11px;color:#6b7a8d;display:flex;gap:8px;flex-wrap:wrap;margin-top:2px">'
+      +'<span>🏢 '+b.type+'</span><span>📍 '+b.quartier+'</span><span>💰 '+Number(b.prix).toLocaleString('fr-MA')+(b.activite==='location'?' DH/mois':' MAD')+'</span><span>📐 '+b.surfaceConstuite+'m²</span>'
+      +(exists?'<span style="color:#1a9e6e;font-weight:700">✅ Déjà importé</span>':'')
+      +'</div></div></div>';
+  }).join('');
+  updCt();
+}
+
+function tgImp(i){var cb=document.getElementById('ic-'+i);cb.checked=!cb.checked;updCt();}
+function selAll(cb){MB.forEach(function(b,i){var c=document.getElementById('ic-'+i);if(c&&!c.disabled)c.checked=cb.checked;});updCt();}
+function updCt(){var n=0;MB.forEach(function(b,i){var c=document.getElementById('ic-'+i);if(c&&c.checked&&!c.disabled)n++;});document.getElementById('sel-ct').textContent=n+' sélectionné(s)';document.getElementById('btn-imp').textContent='📥 Importer '+n+' bien(s)';}
+
+async function doImport(){
+  if(!DB){toast('Base non connectée','er');return;}
+  var toImp=MB.filter(function(b,i){var c=document.getElementById('ic-'+i);return c&&c.checked&&!c.disabled;});
+  if(!toImp.length){toast('Aucun bien sélectionné','er');return;}
+  var btn=document.getElementById('btn-imp');btn.textContent='⏳ Import...';btn.disabled=true;
+  var ok=0;
+  for(var i=0;i<toImp.length;i++){
+    var b=toImp[i];
+    if(biens.some(function(x){return x.mubawabId===b.mubawabId;}))continue;
+    try{
+      var d=Object.assign({},b,{photos:b.photo?[{url:b.photo,publicId:'mb_'+b.mubawabId}]:[],ref:'B-'+String(biens.length+ok+1).padStart(4,'0'),addedBy:'Import Mubawab',source:'mubawab',createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+      delete d.photo;
+      await DB.collection('biens').add(d);ok++;
+    }catch(e){console.error(e);}
+  }
+  btn.textContent='📥 Importer';btn.disabled=false;
+  toast(ok+' bien(s) importé(s) ✓','ok');
+  closeMo('mo-imp');pg('biens');
+}
+
+async function impUrl(){
+  if(!KEY){document.getElementById('url-res').innerHTML='<div style="color:#d93025;padding:10px;background:#fdecea;border-radius:8px;font-size:13px">⚠️ Clé API requise pour cette fonction.</div>';return;}
+  var url=document.getElementById('imp-url').value.trim();
+  if(!url){toast('Entrez un lien Mubawab','er');return;}
+  var m=url.match(/\/a\/(\d+)\//);
+  if(m&&biens.some(function(b){return b.mubawabId===m[1];})){document.getElementById('url-res').innerHTML='<div style="color:#1a9e6e;padding:10px;background:#e6f7f1;border-radius:8px;font-size:13px">✅ Ce bien est déjà dans ILIMO.</div>';return;}
+  var res=document.getElementById('url-res');
+  res.innerHTML='<div class="ld">✨ Extraction en cours <span class="da"><span>.</span><span>.</span><span>.</span></span></div>';
+  try{
+    var r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,tools:[{type:'web_search_20250305',name:'web_search'}],system:'Extrais les données immobilières depuis Mubawab. Réponds UNIQUEMENT en JSON sans markdown: {"titre":"","type":"","activite":"vente|location","prix":"","surfaceConstuite":"","nbChambres":"","ville":"","quartier":"","description":"","photo":"url","mubawabId":""}',messages:[{role:'user',content:'Visite et extrais toutes les infos de: '+url}]})});
+    var d=await r.json();if(d.error)throw new Error(d.error.message);
+    var txt=d.content.filter(function(x){return x.type==='text';}).map(function(x){return x.text;}).join('');
+    var bien=JSON.parse(txt.replace(/```json|```/g,'').trim());
+    if(bien.mubawabId&&biens.some(function(b){return b.mubawabId===bien.mubawabId;})){res.innerHTML='<div style="color:#1a9e6e;padding:10px;background:#e6f7f1;border-radius:8px;font-size:13px">✅ Déjà dans ILIMO.</div>';return;}
+    res.innerHTML='<div style="border:1.5px solid #dde3ea;border-radius:8px;padding:14px;margin-bottom:12px"><div style="font-weight:700;font-size:14px;margin-bottom:6px">'+(bien.titre||'Bien importé')+'</div><div style="font-size:12px;color:#6b7a8d;display:flex;gap:10px;flex-wrap:wrap"><span>🏢 '+(bien.type||'-')+'</span><span>📍 '+(bien.quartier||'')+' '+(bien.ville||'')+'</span><span>💰 '+(bien.prix?Number(bien.prix).toLocaleString('fr-MA')+' MAD':'-')+'</span></div></div>'
+      +'<button class="btn btn-b" style="width:100%" onclick=\'cfImp('+JSON.stringify(JSON.stringify(bien))+')\'>✅ Confirmer l\'import</button>';
+  }catch(e){res.innerHTML='<div style="color:#d93025;padding:10px;background:#fdecea;border-radius:8px;font-size:13px">❌ '+e.message+'</div>';}
+}
+
+async function cfImp(bJson){
+  var b=JSON.parse(bJson);
+  if(!DB){toast('Base non connectée','er');return;}
+  try{
+    var d=Object.assign({},b,{photos:b.photo?[{url:b.photo,publicId:'mb_'+b.mubawabId}]:[],statut:'disponible',ref:'B-'+String(biens.length+1).padStart(4,'0'),addedBy:'Import Mubawab',source:'mubawab',createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    delete d.photo;
+    await DB.collection('biens').add(d);
+    toast('Bien importé ✓','ok');closeMo('mo-imp');pg('biens');
+  }catch(e){toast('Erreur: '+e.message,'er');}
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function closeMo(id){document.getElementById(id).classList.remove('show');}
+document.querySelectorAll('.mo').forEach(function(m){m.addEventListener('click',function(e){if(e.target===m)m.classList.remove('show');});});
+
+function toast(msg,type){
+  var t=document.createElement('div');t.className='toast'+(type?' '+type:'');t.textContent=msg;
+  document.body.appendChild(t);setTimeout(function(){t.remove();},4000);
+}
+</script>
+</body>
+</html>
